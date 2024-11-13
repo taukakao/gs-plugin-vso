@@ -180,29 +180,6 @@ gs_plugin_vso_list_apps_finish(GsPlugin *plugin, GAsyncResult *result, GError **
     return g_task_propagate_pointer(G_TASK(result), error);
 }
 
-static gboolean
-plugin_vso_pick_desktop_file_cb(GsPlugin *plugin,
-                                GsApp *app,
-                                const gchar *filename,
-                                GKeyFile *key_file)
-{
-    return strstr(filename, "/snapd/") == NULL && strstr(filename, "/snap/") == NULL &&
-           strstr(filename, "/flatpak/") == NULL &&
-           g_key_file_has_group(key_file, "Desktop Entry") &&
-           !g_key_file_has_key(key_file, "Desktop Entry", "X-Flatpak", NULL) &&
-           !g_key_file_has_key(key_file, "Desktop Entry", "X-SnapInstanceName", NULL);
-}
-
-gboolean
-gs_plugin_launch(GsPlugin *plugin, GsApp *app, GCancellable *cancellable, GError **error)
-{
-    /* only process this app if was created by this plugin */
-    if (!gs_app_has_management_plugin(app, plugin))
-        return TRUE;
-
-    return gs_plugin_app_launch_filtered(plugin, app, plugin_vso_pick_desktop_file_cb, NULL, error);
-}
-
 gboolean
 gs_plugin_add_updates_historical(GsPlugin *plugin,
                                  GsAppList *list,
